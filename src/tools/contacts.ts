@@ -10,6 +10,7 @@ import {
   CreateContactSchema,
   CreateContactTaskSchema,
   DeleteContactSchema,
+  MergeContactsDeleteLoserSchema,
   RemoveContactTagsSchema,
   RemoveContactWorkflowSchema,
   SearchContactsSchema,
@@ -21,6 +22,7 @@ import {
   type CreateContactNoteInput,
   type CreateContactTaskInput,
   type DeleteContactInput,
+  type MergeContactsDeleteLoserInput,
   type RemoveContactTagsInput,
   type RemoveContactWorkflowInput,
   type SearchContactsInput,
@@ -30,7 +32,7 @@ import {
   UpsertContactSchema
 } from "../schemas/contacts.js";
 import { formatResponse, makeToolResponse, mergeExtra, omitUndefined, requireConfirm, summarizeRecord } from "./format.js";
-import { registerCollectionReadTool } from "./read-tools.js";
+import { extractItems, registerCollectionReadTool } from "./read-tools.js";
 
 export function registerContactTools(server: McpServer, client: GoHighLevelClient): void {
   registerCollectionReadTool(server, client, {
@@ -187,6 +189,110 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
         const data = { contact_id, result };
         const markdown = ["# Deleted GoHighLevel Contact", "", `Deleted contact ${contact_id}.`].join("\n");
         return makeToolResponse(data, formatResponse(response_format, data, markdown));
+      } catch (error) {
+        const data = { error: formatApiError(error) };
+        return makeToolResponse(data, data.error, true);
+      }
+    }
+  );
+
+  server.registerTool(
+    "ghl_merge_contacts_delete_loser",
+    {
+      title: "Merge GoHighLevel Contacts By Deleting Loser",
+      description: "Preview or execute a guarded contact merge workaround: read both contacts, check loser history, delete loser, then update survivor with loser email. Requires confirm: true to execute.",
+      inputSchema: MergeContactsDeleteLoserSchema.shape,
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: false,
+        openWorldHint: true
+      }
+    },
+    async (params: MergeContactsDeleteLoserInput) => {
+      try {
+        if (params.survivor_contact_id === params.loser_contact_id) {
+          const data = { error: "survivor_contact_id and loser_contact_id must be different." };
+          return makeToolResponse(data, data.error, true);
+        }
+
+        const [survivorRaw, loserRaw] = await Promise.all([
+          client.get<unknown>(`/contacts/${encodeURIComponent(params.survivor_contact_id)}`),
+          client.get<unknown>(`/contacts/${encodeURIComponent(params.loser_contact_id)}`)
+        ]);
+        const survivor = unwrapContact(survivorRaw);
+        const loser = unwrapContact(loserRaw);
+        const loserEmail = stringField(loser, "email");
+        const survivorEmail = stringField(survivor, "email");
+        const history = await getLoserHistory(client, params.loser_contact_id);
+        const hasHistory = history.notes.count > 0
+          || history.tasks.count > 0
+          || history.conversations.count > 0
+          || history.opportunities.count > 0
+          || history.errors.length > 0;
+
+        const plan = {
+          survivor_contact_id: params.survivor_contact_id,
+          loser_contact_id: params.loser_contact_id,
+          operation: "delete_loser_then_update_survivor_email",
+          loser_email: loserEmail,
+          survivor_current_email: survivorEmail,
+          history,
+          will_delete_loser: params.confirm === true && !hasHistory,
+          will_update_survivor_email: params.confirm === true && !hasHistory && !!loserEmail,
+          history_policy: "skip_if_loser_has_notes_tasks_conversations_opportunities_or_check_errors",
+          caveat: "This is not GoHighLevel's native UI merge. Deleting the loser does not preserve loser history."
+        };
+
+        if (!loserEmail) {
+          const data = { error: "Loser contact has no email to copy.", plan };
+          return makeToolResponse(data, formatResponse(params.response_format, data, data.error), true);
+        }
+
+        if (params.expected_loser_email && params.expected_loser_email.toLowerCase() !== loserEmail.toLowerCase()) {
+          const data = { error: "Loser email did not match expected_loser_email.", plan };
+          return makeToolResponse(data, formatResponse(params.response_format, data, data.error), true);
+        }
+
+        if (params.confirm !== true) {
+          const data = { executed: false, reason: "Preview only. Re-run with confirm: true to execute delete-then-update.", plan };
+          const markdown = mergeMarkdown(data.executed, data.reason, plan);
+          return makeToolResponse(data, formatResponse(params.response_format, data, markdown));
+        }
+
+        if (hasHistory) {
+          const data = { error: "Loser contact has history or history checks failed; merge skipped without deleting.", plan };
+          return makeToolResponse(data, formatResponse(params.response_format, data, data.error), true);
+        }
+
+        const deleteResult = await client.del<unknown>(`/contacts/${encodeURIComponent(params.loser_contact_id)}`);
+        let updateResult: unknown;
+        try {
+          updateResult = await client.put<unknown>(`/contacts/${encodeURIComponent(params.survivor_contact_id)}`, { email: loserEmail });
+        } catch (updateError) {
+          const data = {
+            error: formatApiError(updateError),
+            executed: true,
+            loser_deleted: true,
+            survivor_updated: false,
+            deleteResult,
+            plan
+          };
+          return makeToolResponse(data, formatResponse(params.response_format, data, data.error), true);
+        }
+
+        const data = {
+          executed: true,
+          loser_deleted: true,
+          survivor_updated: true,
+          survivor_contact_id: params.survivor_contact_id,
+          loser_contact_id: params.loser_contact_id,
+          deleteResult,
+          updateResult,
+          plan
+        };
+        const markdown = mergeMarkdown(true, "Deleted loser and updated survivor email.", plan);
+        return makeToolResponse(data, formatResponse(params.response_format, data, markdown));
       } catch (error) {
         const data = { error: formatApiError(error) };
         return makeToolResponse(data, data.error, true);
@@ -414,4 +520,95 @@ function contactBody(
     tags: params.tags,
     customFields: params.customFields
   }, params.extra);
+}
+
+function unwrapContact(raw: unknown): Record<string, unknown> {
+  if (raw && typeof raw === "object") {
+    const source = raw as Record<string, unknown>;
+    if (source.contact && typeof source.contact === "object") {
+      return source.contact as Record<string, unknown>;
+    }
+    return source;
+  }
+
+  return {};
+}
+
+function stringField(source: Record<string, unknown>, key: string): string | undefined {
+  const value = source[key];
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+type HistoryCheck = {
+  count: number;
+  checked: boolean;
+};
+
+type LoserHistory = {
+  notes: HistoryCheck;
+  tasks: HistoryCheck;
+  conversations: HistoryCheck;
+  opportunities: HistoryCheck;
+  errors: string[];
+};
+
+async function getLoserHistory(client: GoHighLevelClient, loserContactId: string): Promise<LoserHistory> {
+  const history: LoserHistory = {
+    notes: { count: 0, checked: false },
+    tasks: { count: 0, checked: false },
+    conversations: { count: 0, checked: false },
+    opportunities: { count: 0, checked: false },
+    errors: []
+  };
+
+  await setHistoryCount(history, "notes", async () => client.get<unknown>(`/contacts/${encodeURIComponent(loserContactId)}/notes`));
+  await setHistoryCount(history, "tasks", async () => client.get<unknown>(`/contacts/${encodeURIComponent(loserContactId)}/tasks`));
+  await setHistoryCount(history, "conversations", async () => client.get<unknown>("/conversations/search", {
+    locationId: client.defaultLocationId,
+    contactId: loserContactId,
+    limit: 1
+  }));
+  await setHistoryCount(history, "opportunities", async () => client.get<unknown>("/opportunities/search", {
+    location_id: client.defaultLocationId,
+    contact_id: loserContactId,
+    limit: 1
+  }));
+
+  return history;
+}
+
+async function setHistoryCount(
+  history: LoserHistory,
+  key: keyof Omit<LoserHistory, "errors">,
+  read: () => Promise<unknown>
+): Promise<void> {
+  try {
+    const raw = await read();
+    history[key] = {
+      count: extractItems(raw).length,
+      checked: true
+    };
+  } catch (error) {
+    history.errors.push(`${key}: ${formatApiError(error)}`);
+  }
+}
+
+function mergeMarkdown(executed: boolean, reason: string, plan: Record<string, unknown>): string {
+  const history = plan.history as LoserHistory;
+  return [
+    "# GoHighLevel Contact Merge Workaround",
+    "",
+    `- Executed: ${executed}`,
+    `- Result: ${reason}`,
+    `- Survivor: ${String(plan.survivor_contact_id)}`,
+    `- Loser: ${String(plan.loser_contact_id)}`,
+    `- Loser email to copy: ${String(plan.loser_email ?? "")}`,
+    `- Loser notes: ${history.notes.count}`,
+    `- Loser tasks: ${history.tasks.count}`,
+    `- Loser conversations: ${history.conversations.count}`,
+    `- Loser opportunities: ${history.opportunities.count}`,
+    `- History check errors: ${history.errors.length}`,
+    "",
+    "Caveat: this is delete-the-loser then update-the-survivor, not native GoHighLevel UI merge."
+  ].join("\n");
 }

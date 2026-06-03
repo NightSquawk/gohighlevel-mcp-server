@@ -132,6 +132,20 @@ export const CreateContactTaskSchema = z
   })
   .strict();
 
+export const MergeContactsDeleteLoserSchema = z
+  .object({
+    survivor_contact_id: IdSchema.describe("Contact ID to keep. This record is updated with the loser email."),
+    loser_contact_id: IdSchema.describe("Contact ID to delete after preflight checks. Its email is copied to the survivor."),
+    confirm: ConfirmSchema,
+    expected_loser_email: z
+      .string()
+      .email()
+      .optional()
+      .describe("Optional safety check. If provided, the loser contact email must match this value before execution."),
+    response_format: ResponseFormatSchema
+  })
+  .strict();
+
 export type SearchContactsInput = z.infer<typeof SearchContactsSchema>;
 export type ContactIdInput = z.infer<typeof ContactIdSchema>;
 export type CreateContactInput = z.infer<typeof CreateContactSchema>;
@@ -145,3 +159,4 @@ export type RemoveContactWorkflowInput = z.infer<typeof RemoveContactWorkflowSch
 export type ContactCollectionInput = z.infer<typeof ContactCollectionSchema>;
 export type CreateContactNoteInput = z.infer<typeof CreateContactNoteSchema>;
 export type CreateContactTaskInput = z.infer<typeof CreateContactTaskSchema>;
+export type MergeContactsDeleteLoserInput = z.infer<typeof MergeContactsDeleteLoserSchema>;

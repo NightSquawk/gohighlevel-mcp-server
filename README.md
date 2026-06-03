@@ -4,6 +4,7 @@ Stdio MCP server for curated GoHighLevel API v2 coverage. It is intended to run 
 
 - create, update, and delete custom fields
 - delete contacts
+- guarded duplicate-contact merge workaround for records that are safe to hard-delete
 
 This implementation covers all phases in `SCOPE.md`: custom fields, custom values, contacts, opportunities, tags, conversations, calendars, locations/users, contact notes/tasks, and Custom Fields V2/folders. Live create/update/delete/send calls are owner-gated by NightSquawk Rule 8 and should not be executed without explicit approval.
 
@@ -76,6 +77,7 @@ Required Private Integration scopes for the full server roadmap:
 - `ghl_update_contact`
 - `ghl_upsert_contact`
 - `ghl_delete_contact` requires `confirm: true`
+- `ghl_merge_contacts_delete_loser` previews by default; requires `confirm: true`, deletes the loser only after zero-history preflight checks, then updates the survivor email
 - `ghl_add_contact_tags`
 - `ghl_remove_contact_tags` requires `confirm: true`
 - `ghl_add_contact_to_workflow`
@@ -150,5 +152,6 @@ Owner-approved write/delete test plan:
 9. Create/update/delete a disposable Custom Fields V2 field and folder only under an owner-approved test object key, with `confirm: true` for deletes.
 10. Create a disposable contact note and task only on an owner-approved test contact.
 11. For each destructive tool, first call it without `confirm: true` and verify it returns an MCP error without calling GoHighLevel.
+12. For `ghl_merge_contacts_delete_loser`, first run `confirm: false` against an owner-approved duplicate pair and verify the preview shows the loser email, survivor email, and zero notes/tasks/conversations/opportunities/history-check errors. For the destructive test, use only disposable contacts: create a survivor and loser, set the loser's email, verify no history exists, run with `confirm: true`, verify the loser is gone and the survivor has the copied email. Separately verify the guard by adding a note/task to a disposable loser and confirming the merge is skipped without deletion.
 
 Use stderr only for logs. Never commit `.env` or real tokens.
