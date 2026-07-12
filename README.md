@@ -1,5 +1,7 @@
 # @nightsquawktech/gohighlevel-mcp-server
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/NightSquawk/gohighlevel-mcp-server/badge)](https://scorecard.dev/viewer/?uri=github.com/NightSquawk/gohighlevel-mcp-server)
+
 Stdio MCP server for curated GoHighLevel API v2 coverage. It is intended to run beside the official hosted HighLevel MCP and fill the gaps that server does not expose:
 
 - create, update, and delete custom fields
