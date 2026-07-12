@@ -57,7 +57,7 @@ export function registerCustomValueTools(server: McpServer, client: GoHighLevelC
     "ghl_create_custom_value",
     {
       title: "Create GoHighLevel Custom Value",
-      description: "Create a custom value for a GoHighLevel location. Rule 8: do not run against live data without owner approval.",
+      description: "Create a custom value for a GoHighLevel location. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateCustomValueSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -86,7 +86,7 @@ export function registerCustomValueTools(server: McpServer, client: GoHighLevelC
     "ghl_update_custom_value",
     {
       title: "Update GoHighLevel Custom Value",
-      description: "Update a custom value from /locations/{locationId}/customValues/{id}. Rule 8: do not run against live data without owner approval.",
+      description: "Update a custom value from /locations/{locationId}/customValues/{id}. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateCustomValueSchema.shape,
       annotations: {
         readOnlyHint: false,

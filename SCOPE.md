@@ -39,7 +39,7 @@ curated coverage** of the GHL v2 API — prioritizing the gaps the official MCP 
 A sibling server was just built to NightSquawk's house style and best practices. **Study it first
 and mirror its structure, conventions, and idioms.** Do not invent a new architecture.
 
-**Reference path:** `D:\Syncthing\RemoteSync\GitHub\Other\tacticalrmm-mcp-server`
+**Reference:** [tacticalrmm-mcp-server](https://github.com/NightSquawk/tacticalrmm-mcp-server)
 
 ### 2.1 File/folder layout to replicate
 
@@ -118,7 +118,7 @@ gohighlevel-mcp-server/
 | Env var | Required | Default | Notes |
 |---|---|---|---|
 | `GHL_API_TOKEN` | **yes** | — | Private Integration Token (`pit-...`) **or** OAuth Sub-Account access token. Sent as `Authorization: Bearer <token>`. |
-| `GHL_LOCATION_ID` | **yes** | — | Default sub-account/location ID. Used when a tool's `location_id` param is omitted. NightSquawk's own location: see `~/.claude.json` (do **not** hardcode). |
+| `GHL_LOCATION_ID` | **yes** | — | Default sub-account/location ID. Used when a tool's `location_id` param is omitted. Do **not** hardcode it. |
 | `GHL_BASE_URL` | no | `https://services.leadconnectorhq.com` | API root. |
 | `GHL_API_VERSION` | no | `2021-07-28` | Sent as the `Version` header on **every** request. GHL requires it. |
 | `GHL_TIMEOUT_MS` | no | `30000` | Min 1000. |
@@ -390,9 +390,9 @@ reality instead:
 2. **Confirm write-body field names** for create/update custom field & custom value against the
    Stoplight docs in a browser (or by trial create→read→delete in a safe way). Do **not** ship a
    create tool whose body schema you haven't confirmed round-trips.
-3. **Destructive tests are owner-gated.** Per **NightSquawk Rule 8 (GoHighLevel — Ask to Write)**,
-   do not run create/update/delete against the live location without explicit owner go-ahead. Build
-   the tools, unit-shape them, and hand the owner a short "test plan" of exact calls to approve.
+3. **Destructive tests are owner-gated.** Do not run create/update/delete against a live location
+   without explicit owner go-ahead. Build the tools, unit-shape them, and hand the owner a short
+   "test plan" of exact calls to approve.
 4. **`build` must pass** (`npm run build`) with zero TS errors before declaring done.
 
 ---
@@ -412,8 +412,8 @@ reality instead:
 
 ```jsonc
 "gohighlevel": {
-  "command": "node",
-  "args": ["D:/Syncthing/RemoteSync/GitHub/Other/gohighlevel-mcp-server/dist/index.js"],
+  "command": "npx",
+  "args": ["-y", "@nightsquawktech/gohighlevel-mcp-server"],
   "env": {
     "GHL_API_TOKEN": "pit-...",            // do not commit
     "GHL_LOCATION_ID": "<location id>",
@@ -430,10 +430,10 @@ reality instead:
 
 ## 10. Guardrails & house rules
 
-- **Rule 1 (No sensitive data in outputs):** never log or echo the token; scrub auth headers in
+- **No sensitive data in outputs:** never log or echo the token; scrub auth headers in
   errors; `.env` is gitignored; `.env.example` carries placeholders only.
-- **Rule 8 (GoHighLevel — Ask to Write):** all create/update/delete/send tools are owner-gated for
-  live execution. The `confirm: true` param is a code-level backstop, not a substitute for the rule.
+- **Ask before writing:** all create/update/delete/send tools are owner-gated for
+  live execution. The `confirm: true` param is a code-level backstop, not a substitute for asking.
 - **Single tenant:** defaults to one `GHL_LOCATION_ID`, but every location-scoped tool accepts an
   optional `location_id` override param so it can target other sub-accounts later.
 - **Don't duplicate the reference's bugs:** the trailing-slash `normalizePath` is correct for

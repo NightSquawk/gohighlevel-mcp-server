@@ -4,3 +4,7 @@ dist/
 .env.*
 !.env.example
 npm-debug.log*
+
+# Internal agent notes - not for publication
+AGENTS.md
+CLAUDE.md

@@ -84,7 +84,7 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
     "ghl_create_contact",
     {
       title: "Create GoHighLevel Contact",
-      description: "Create a contact with POST /contacts/. Rule 8: do not run against live data without owner approval.",
+      description: "Create a contact with POST /contacts/. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateContactSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -110,7 +110,7 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
     "ghl_update_contact",
     {
       title: "Update GoHighLevel Contact",
-      description: "Update a contact with PUT /contacts/{contactId}. Rule 8: do not run against live data without owner approval.",
+      description: "Update a contact with PUT /contacts/{contactId}. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateContactSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -142,7 +142,7 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
     "ghl_upsert_contact",
     {
       title: "Upsert GoHighLevel Contact",
-      description: "Create or update a contact with POST /contacts/upsert. Rule 8: do not run against live data without owner approval.",
+      description: "Create or update a contact with POST /contacts/upsert. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpsertContactSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -304,7 +304,7 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
     "ghl_add_contact_tags",
     {
       title: "Add GoHighLevel Contact Tags",
-      description: "Add tags to a contact with POST /contacts/{contactId}/tags. Rule 8: do not run against live data without owner approval.",
+      description: "Add tags to a contact with POST /contacts/{contactId}/tags. Write operation: do not run against live data without explicit approval.",
       inputSchema: ContactTagsSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -362,7 +362,7 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
     "ghl_add_contact_to_workflow",
     {
       title: "Add GoHighLevel Contact To Workflow",
-      description: "Add a contact to a workflow with POST /contacts/{contactId}/workflow/{workflowId}. Rule 8: do not run against live data without owner approval.",
+      description: "Add a contact to a workflow with POST /contacts/{contactId}/workflow/{workflowId}. Write operation: do not run against live data without explicit approval.",
       inputSchema: ContactWorkflowSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -431,7 +431,7 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
     "ghl_create_contact_note",
     {
       title: "Create GoHighLevel Contact Note",
-      description: "Create a note for a contact with POST /contacts/{contactId}/notes. Rule 8: do not run against live data without owner approval.",
+      description: "Create a note for a contact with POST /contacts/{contactId}/notes. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateContactNoteSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -468,7 +468,7 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
     "ghl_create_contact_task",
     {
       title: "Create GoHighLevel Contact Task",
-      description: "Create a task for a contact with POST /contacts/{contactId}/tasks. Rule 8: do not run against live data without owner approval.",
+      description: "Create a task for a contact with POST /contacts/{contactId}/tasks. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateContactTaskSchema.shape,
       annotations: {
         readOnlyHint: false,

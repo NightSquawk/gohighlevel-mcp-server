@@ -72,7 +72,7 @@ export function registerCustomFieldTools(server: McpServer, client: GoHighLevelC
     "ghl_create_custom_field",
     {
       title: "Create GoHighLevel Custom Field",
-      description: "Create a custom field for a GoHighLevel location. Rule 8: do not run against live data without owner approval.",
+      description: "Create a custom field for a GoHighLevel location. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateCustomFieldSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -99,7 +99,7 @@ export function registerCustomFieldTools(server: McpServer, client: GoHighLevelC
     "ghl_update_custom_field",
     {
       title: "Update GoHighLevel Custom Field",
-      description: "Update a custom field through the current location-scoped API: PUT /locations/{locationId}/customFields/{id}. Rule 8: do not run against live data without owner approval.",
+      description: "Update a custom field through the current location-scoped API: PUT /locations/{locationId}/customFields/{id}. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateCustomFieldSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -201,7 +201,7 @@ export function registerCustomFieldTools(server: McpServer, client: GoHighLevelC
     "ghl_create_custom_field_v2",
     {
       title: "Create GoHighLevel Custom Field V2",
-      description: "Create a Custom Fields V2 field with POST /custom-fields/. Rule 8: do not run against live data without owner approval.",
+      description: "Create a Custom Fields V2 field with POST /custom-fields/. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateCustomFieldV2Schema.shape,
       annotations: {
         readOnlyHint: false,
@@ -227,7 +227,7 @@ export function registerCustomFieldTools(server: McpServer, client: GoHighLevelC
     "ghl_update_custom_field_v2",
     {
       title: "Update GoHighLevel Custom Field V2",
-      description: "Update a Custom Fields V2 field with PUT /custom-fields/{id}. Rule 8: do not run against live data without owner approval.",
+      description: "Update a Custom Fields V2 field with PUT /custom-fields/{id}. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateCustomFieldV2Schema.shape,
       annotations: {
         readOnlyHint: false,
@@ -291,7 +291,7 @@ export function registerCustomFieldTools(server: McpServer, client: GoHighLevelC
     "ghl_create_custom_field_folder",
     {
       title: "Create GoHighLevel Custom Field Folder",
-      description: "Create a Custom Fields V2 folder with POST /custom-fields/folder. Rule 8: do not run against live data without owner approval.",
+      description: "Create a Custom Fields V2 folder with POST /custom-fields/folder. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateCustomFieldFolderSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -322,7 +322,7 @@ export function registerCustomFieldTools(server: McpServer, client: GoHighLevelC
     "ghl_update_custom_field_folder",
     {
       title: "Update GoHighLevel Custom Field Folder",
-      description: "Update a Custom Fields V2 folder name with PUT /custom-fields/folder/{id}. Rule 8: do not run against live data without owner approval.",
+      description: "Update a Custom Fields V2 folder name with PUT /custom-fields/folder/{id}. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateCustomFieldFolderSchema.shape,
       annotations: {
         readOnlyHint: false,

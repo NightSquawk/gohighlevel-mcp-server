@@ -90,7 +90,7 @@ export function registerOpportunityTools(server: McpServer, client: GoHighLevelC
     "ghl_create_opportunity",
     {
       title: "Create GoHighLevel Opportunity",
-      description: "Create an opportunity with POST /opportunities/. Rule 8: do not run against live data without owner approval.",
+      description: "Create an opportunity with POST /opportunities/. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateOpportunitySchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -116,7 +116,7 @@ export function registerOpportunityTools(server: McpServer, client: GoHighLevelC
     "ghl_update_opportunity",
     {
       title: "Update GoHighLevel Opportunity",
-      description: "Update an opportunity with PUT /opportunities/{id}. Rule 8: do not run against live data without owner approval.",
+      description: "Update an opportunity with PUT /opportunities/{id}. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateOpportunitySchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -148,7 +148,7 @@ export function registerOpportunityTools(server: McpServer, client: GoHighLevelC
     "ghl_update_opportunity_status",
     {
       title: "Update GoHighLevel Opportunity Status",
-      description: "Update opportunity status with PUT /opportunities/{id}/status. Rule 8: do not run against live data without owner approval.",
+      description: "Update opportunity status with PUT /opportunities/{id}/status. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateOpportunityStatusSchema.shape,
       annotations: {
         readOnlyHint: false,

@@ -1,15 +1,15 @@
 {
-  "name": "gohighlevel-mcp-server",
+  "name": "@nightsquawktech/gohighlevel-mcp-server",
   "version": "0.1.0",
   "description": "MCP server for curated GoHighLevel API v2 coverage.",
   "type": "module",
   "main": "dist/index.js",
-  "bin": {
-    "gohighlevel-mcp-server": "./dist/index.js"
-  },
+  "bin": "./dist/index.js",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "COMMERCIAL.md"
   ],
   "scripts": {
     "build": "tsc",
@@ -30,5 +30,18 @@
     "rimraf": "^6.0.1",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"
+  },
+  "license": "AGPL-3.0-only",
+  "author": "Kevin Reyes (NightSquawk Tech) <hello@nightsquawk.tech>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NightSquawk/gohighlevel-mcp-server.git"
+  },
+  "homepage": "https://github.com/NightSquawk/gohighlevel-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/NightSquawk/gohighlevel-mcp-server/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

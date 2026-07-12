@@ -1,4 +1,4 @@
-# gohighlevel-mcp-server
+# @nightsquawktech/gohighlevel-mcp-server
 
 Stdio MCP server for curated GoHighLevel API v2 coverage. It is intended to run beside the official hosted HighLevel MCP and fill the gaps that server does not expose:
 
@@ -6,7 +6,7 @@ Stdio MCP server for curated GoHighLevel API v2 coverage. It is intended to run 
 - delete contacts
 - guarded duplicate-contact merge workaround for records that are safe to hard-delete
 
-This implementation covers all phases in `SCOPE.md`: custom fields, custom values, contacts, opportunities, tags, conversations, calendars, locations/users, contact notes/tasks, and Custom Fields V2/folders. Live create/update/delete/send calls are owner-gated by NightSquawk Rule 8 and should not be executed without explicit approval.
+This implementation covers all phases in `SCOPE.md`: custom fields, custom values, contacts, opportunities, tags, conversations, calendars, locations/users, contact notes/tasks, and Custom Fields V2/folders. Destructive and outbound tools (deletes, merges, message sends) require an explicit `confirm: true` parameter and should only be run with explicit human approval.
 
 ## Custom Field API Fork
 
@@ -19,21 +19,20 @@ The newer `/custom-fields/{id}` V2 API is documented separately and says it only
 
 ## Setup
 
-```powershell
-npm install
-npm run build
-```
+Configure your MCP client to run the server with `npx`:
 
-Configure your MCP client to run the built server:
-
-```jsonc
-"gohighlevel": {
-  "command": "node",
-  "args": ["D:/Syncthing/RemoteSync/GitHub/Other/gohighlevel-mcp-server/dist/index.js"],
-  "env": {
-    "GHL_API_TOKEN": "pit-...",
-    "GHL_LOCATION_ID": "<location id>",
-    "GHL_API_VERSION": "2021-07-28"
+```json
+{
+  "mcpServers": {
+    "gohighlevel": {
+      "command": "npx",
+      "args": ["-y", "@nightsquawktech/gohighlevel-mcp-server"],
+      "env": {
+        "GHL_API_TOKEN": "pit-...",
+        "GHL_LOCATION_ID": "<location id>",
+        "GHL_API_VERSION": "2021-07-28"
+      }
+    }
   }
 }
 ```
@@ -155,3 +154,17 @@ Owner-approved write/delete test plan:
 12. For `ghl_merge_contacts_delete_loser`, first run `confirm: false` against an owner-approved duplicate pair and verify the preview shows the loser email, survivor email, and zero notes/tasks/conversations/opportunities/history-check errors. For the destructive test, use only disposable contacts: create a survivor and loser, set the loser's email, verify no history exists, run with `confirm: true`, verify the loser is gone and the survivor has the copied email. Separately verify the guard by adding a note/task to a disposable loser and confirming the merge is skipped without deletion.
 
 Use stderr only for logs. Never commit `.env` or real tokens.
+
+## Development
+
+```sh
+npm install
+npm run dev
+npm run build
+```
+
+## License
+
+Licensed under the [GNU AGPL v3.0](./LICENSE). Free for personal and open-source use.
+
+Organizations that cannot comply with the AGPL can purchase a commercial license. See [COMMERCIAL.md](./COMMERCIAL.md) or contact hello@nightsquawk.tech.

@@ -89,7 +89,7 @@ export function registerCalendarTools(server: McpServer, client: GoHighLevelClie
     "ghl_create_appointment",
     {
       title: "Create GoHighLevel Appointment",
-      description: "Create an appointment with POST /calendars/events/appointments. Rule 8: do not run against live data without owner approval.",
+      description: "Create an appointment with POST /calendars/events/appointments. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateAppointmentSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -115,7 +115,7 @@ export function registerCalendarTools(server: McpServer, client: GoHighLevelClie
     "ghl_update_appointment",
     {
       title: "Update GoHighLevel Appointment",
-      description: "Update an appointment with PUT /calendars/events/appointments/{id}. Rule 8: do not run against live data without owner approval.",
+      description: "Update an appointment with PUT /calendars/events/appointments/{id}. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateAppointmentSchema.shape,
       annotations: {
         readOnlyHint: false,

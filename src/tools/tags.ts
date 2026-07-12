@@ -57,7 +57,7 @@ export function registerTagTools(server: McpServer, client: GoHighLevelClient): 
     "ghl_create_tag",
     {
       title: "Create GoHighLevel Tag",
-      description: "Create a location tag. Rule 8: do not run against live data without owner approval.",
+      description: "Create a location tag. Write operation: do not run against live data without explicit approval.",
       inputSchema: CreateTagSchema.shape,
       annotations: {
         readOnlyHint: false,
@@ -83,7 +83,7 @@ export function registerTagTools(server: McpServer, client: GoHighLevelClient): 
     "ghl_update_tag",
     {
       title: "Update GoHighLevel Tag",
-      description: "Update a location tag. Rule 8: do not run against live data without owner approval.",
+      description: "Update a location tag. Write operation: do not run against live data without explicit approval.",
       inputSchema: UpdateTagSchema.shape,
       annotations: {
         readOnlyHint: false,
