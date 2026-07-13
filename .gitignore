@@ -4,6 +4,7 @@ dist/
 .env.*
 !.env.example
 npm-debug.log*
+*.mcpb
 
 # Internal agent notes - not for publication
 AGENTS.md

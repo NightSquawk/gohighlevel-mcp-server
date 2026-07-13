@@ -1,0 +1,136 @@
+{
+  "manifest_version": "0.4",
+  "name": "gohighlevel-mcp-server",
+  "display_name": "GoHighLevel MCP Server",
+  "version": "0.1.0",
+  "description": "MCP server for curated GoHighLevel API v2 coverage.",
+  "long_description": "Connect Claude to your [GoHighLevel](https://www.gohighlevel.com) CRM. 56 curated tools over the GoHighLevel API v2 covering contacts, custom fields (v1, V2, and folders), custom values, tags, opportunities, pipelines, conversations, calendars, appointments, locations, and users. Fills gaps the official HighLevel MCP leaves open: full custom-field CRUD, contact delete, and a guarded duplicate-contact merge. Destructive operations (deletes, merges, outbound message sends) require an explicit confirm flag on every call.",
+  "author": {
+    "name": "NightSquawk Tech",
+    "email": "hello@nightsquawk.tech",
+    "url": "https://nightsquawk.tech"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NightSquawk/gohighlevel-mcp-server"
+  },
+  "homepage": "https://github.com/NightSquawk/gohighlevel-mcp-server",
+  "documentation": "https://github.com/NightSquawk/gohighlevel-mcp-server#readme",
+  "support": "https://github.com/NightSquawk/gohighlevel-mcp-server/issues",
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "GHL_API_TOKEN": "${user_config.api_token}",
+        "GHL_LOCATION_ID": "${user_config.location_id}",
+        "GHL_BASE_URL": "${user_config.base_url}",
+        "GHL_API_VERSION": "${user_config.api_version}",
+        "GHL_TIMEOUT_MS": "${user_config.timeout_ms}"
+      }
+    }
+  },
+  "user_config": {
+    "api_token": {
+      "type": "string",
+      "title": "GoHighLevel API Token",
+      "description": "Private Integration token (pit-...) from GoHighLevel Settings > Private Integrations, or an OAuth sub-account access token",
+      "sensitive": true,
+      "required": true
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID",
+      "description": "Default GoHighLevel sub-account/location ID",
+      "required": true
+    },
+    "base_url": {
+      "type": "string",
+      "title": "API Base URL",
+      "description": "GoHighLevel API v2 base URL",
+      "default": "https://services.leadconnectorhq.com",
+      "required": false
+    },
+    "api_version": {
+      "type": "string",
+      "title": "API Version Header",
+      "description": "Version header sent on every request",
+      "default": "2021-07-28",
+      "required": false
+    },
+    "timeout_ms": {
+      "type": "number",
+      "title": "Request Timeout (ms)",
+      "description": "HTTP timeout for GoHighLevel API requests, minimum 1000",
+      "default": 30000,
+      "min": 1000,
+      "required": false
+    }
+  },
+  "tools": [
+    { "name": "ghl_list_custom_fields", "description": "List custom fields for a location" },
+    { "name": "ghl_get_custom_field", "description": "Get one custom field" },
+    { "name": "ghl_create_custom_field", "description": "Create a custom field" },
+    { "name": "ghl_update_custom_field", "description": "Update a custom field" },
+    { "name": "ghl_delete_custom_field", "description": "Delete a custom field (confirm: true)" },
+    { "name": "ghl_list_custom_fields_v2", "description": "List Custom Fields V2 fields/folders by object key" },
+    { "name": "ghl_get_custom_field_v2", "description": "Get a Custom Fields V2 field or folder by ID" },
+    { "name": "ghl_create_custom_field_v2", "description": "Create a Custom Fields V2 field" },
+    { "name": "ghl_update_custom_field_v2", "description": "Update a Custom Fields V2 field" },
+    { "name": "ghl_delete_custom_field_v2", "description": "Delete a Custom Fields V2 field (confirm: true)" },
+    { "name": "ghl_create_custom_field_folder", "description": "Create a Custom Fields V2 folder" },
+    { "name": "ghl_update_custom_field_folder", "description": "Rename a Custom Fields V2 folder" },
+    { "name": "ghl_delete_custom_field_folder", "description": "Delete a Custom Fields V2 folder (confirm: true)" },
+    { "name": "ghl_list_custom_values", "description": "List custom values for a location" },
+    { "name": "ghl_get_custom_value", "description": "Get one custom value" },
+    { "name": "ghl_create_custom_value", "description": "Create a custom value" },
+    { "name": "ghl_update_custom_value", "description": "Update a custom value" },
+    { "name": "ghl_delete_custom_value", "description": "Delete a custom value (confirm: true)" },
+    { "name": "ghl_search_contacts", "description": "Search contacts with server-side filters" },
+    { "name": "ghl_get_contact", "description": "Get one contact" },
+    { "name": "ghl_create_contact", "description": "Create a contact" },
+    { "name": "ghl_update_contact", "description": "Update a contact" },
+    { "name": "ghl_upsert_contact", "description": "Create or update a contact in one call" },
+    { "name": "ghl_delete_contact", "description": "Delete a contact (confirm: true)" },
+    { "name": "ghl_merge_contacts_delete_loser", "description": "Guarded duplicate merge: preview, then delete loser and copy its email to survivor (confirm: true)" },
+    { "name": "ghl_add_contact_tags", "description": "Add tags to a contact" },
+    { "name": "ghl_remove_contact_tags", "description": "Remove tags from a contact (confirm: true)" },
+    { "name": "ghl_add_contact_to_workflow", "description": "Add a contact to a workflow" },
+    { "name": "ghl_remove_contact_from_workflow", "description": "Remove a contact from a workflow (confirm: true)" },
+    { "name": "ghl_get_contact_notes", "description": "List notes on a contact" },
+    { "name": "ghl_create_contact_note", "description": "Create a note on a contact" },
+    { "name": "ghl_get_contact_tasks", "description": "List tasks on a contact" },
+    { "name": "ghl_create_contact_task", "description": "Create a task on a contact" },
+    { "name": "ghl_list_tags", "description": "List tags for a location" },
+    { "name": "ghl_get_tag", "description": "Get one tag" },
+    { "name": "ghl_create_tag", "description": "Create a location tag" },
+    { "name": "ghl_update_tag", "description": "Rename a location tag" },
+    { "name": "ghl_delete_tag", "description": "Delete a location tag (confirm: true)" },
+    { "name": "ghl_search_opportunities", "description": "Search opportunities with server-side filters" },
+    { "name": "ghl_get_pipelines", "description": "List opportunity pipelines and stages" },
+    { "name": "ghl_get_opportunity", "description": "Get one opportunity" },
+    { "name": "ghl_create_opportunity", "description": "Create an opportunity" },
+    { "name": "ghl_update_opportunity", "description": "Update an opportunity" },
+    { "name": "ghl_update_opportunity_status", "description": "Set opportunity status (open/won/lost/abandoned)" },
+    { "name": "ghl_delete_opportunity", "description": "Delete an opportunity (confirm: true)" },
+    { "name": "ghl_search_conversations", "description": "Search conversations" },
+    { "name": "ghl_get_conversation_messages", "description": "List messages in a conversation" },
+    { "name": "ghl_send_message", "description": "Send an outbound SMS/email/message (confirm: true)" },
+    { "name": "ghl_list_calendars", "description": "List calendars for a location" },
+    { "name": "ghl_get_calendar_events", "description": "List calendar events" },
+    { "name": "ghl_get_free_slots", "description": "Get free booking slots for a calendar" },
+    { "name": "ghl_create_appointment", "description": "Create an appointment" },
+    { "name": "ghl_update_appointment", "description": "Update an appointment" },
+    { "name": "ghl_delete_appointment", "description": "Delete a calendar event (confirm: true)" },
+    { "name": "ghl_get_location", "description": "Get the location/sub-account details" },
+    { "name": "ghl_list_users", "description": "List users for a location" }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=20" }
+  },
+  "keywords": ["gohighlevel", "highlevel", "crm", "mcp", "marketing-automation", "msp"],
+  "license": "AGPL-3.0-only"
+}
