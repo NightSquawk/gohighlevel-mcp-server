@@ -35,6 +35,6 @@ export const IdSchema = z.string().min(1).describe("GoHighLevel opaque resource 
 export const NonEmptyStringArraySchema = z.array(z.string().min(1)).min(1);
 
 export const ExtraSchema = z
-  .record(z.unknown())
+  .record(z.string(), z.unknown())
   .optional()
   .describe("Optional additional GoHighLevel fields to pass through when the API supports fields not modeled by this tool.");

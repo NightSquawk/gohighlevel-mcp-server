@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ConfirmSchema, ExtraSchema, IdSchema, LimitSchema, LocationIdSchema, NonEmptyStringArraySchema, OffsetSchema, ResponseFormatSchema } from "./common.js";
 
-const CustomFieldsSchema = z.array(z.record(z.unknown())).optional().describe("GoHighLevel customFields array, usually objects with id/key and value.");
+const CustomFieldsSchema = z.array(z.record(z.string(), z.unknown())).optional().describe("GoHighLevel customFields array, usually objects with id/key and value.");
 
 const ContactBodyShape = {
   firstName: z.string().min(1).optional(),
@@ -28,7 +28,7 @@ export const SearchContactsSchema = z
   .object({
     location_id: LocationIdSchema,
     query: z.string().min(1).optional().describe("Optional search text."),
-    filters: z.array(z.record(z.unknown())).optional().describe("Optional GoHighLevel contact search filters."),
+    filters: z.array(z.record(z.string(), z.unknown())).optional().describe("Optional GoHighLevel contact search filters."),
     pageLimit: z.number().int().min(1).max(100).default(20).describe("GoHighLevel server-side page size."),
     start_after_id: z.string().min(1).optional().describe("Optional GoHighLevel startAfterId cursor."),
     limit: LimitSchema,

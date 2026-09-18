@@ -108,7 +108,7 @@ const CustomFieldV2BodyShape = {
   placeholder: z.string().min(1).optional(),
   parentId: z.string().min(1).optional(),
   showInForms: z.boolean().optional(),
-  options: z.array(z.record(z.unknown())).optional(),
+  options: z.array(z.record(z.string(), z.unknown())).optional(),
   acceptedFormats: z.string().min(1).optional(),
   allowCustomOption: z.boolean().optional(),
   maxFileLimit: z.number().int().positive().optional(),
