@@ -34,7 +34,8 @@ export function formatApiError(error: unknown): string {
     }
   }
 
-  return `Unexpected GoHighLevel error: ${error instanceof Error ? error.message : String(error)}`;
+  const message = error instanceof Error ? error.message : String(error);
+  return `Unexpected GoHighLevel error: ${scrubSensitive(message)}`;
 }
 
 function formatErrorData(data: unknown): string {
