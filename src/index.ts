@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { SERVER_NAME, SERVER_VERSION } from "./constants.js";
 import { loadConfig } from "./services/config.js";
+import { formatApiError } from "./services/errors.js";
 import { GoHighLevelClient } from "./services/gohighlevel-client.js";
 import { registerTools } from "./tools/index.js";
 
@@ -22,6 +23,9 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : String(error));
+  // Route through formatApiError so a Bearer token can never reach stderr in
+  // clear text, even if the rejection originates from an Axios error thrown
+  // before a tool handler's own try/catch (e.g. during startup wiring).
+  console.error(formatApiError(error));
   process.exit(1);
 });
