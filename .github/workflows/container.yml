@@ -1,0 +1,78 @@
+name: Container
+on:
+  pull_request:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: container-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: nst-mcp:test
+      - name: Auth, health, initialize, tools/list and shutdown smoke checks
+        run: node docker/smoke.mjs nst-mcp:test
+  publish:
+    needs: validate
+    # Never publish a PR, a branch dispatch, or a non-default branch push.
+    if: >-
+      github.event_name != 'pull_request' &&
+      ((github.event_name == 'push' && github.ref_type == 'tag') ||
+       github.ref == format('refs/heads/{0}', github.event.repository.default_branch))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Validate release and generate lowercase image tags
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${REPOSITORY,,}"
+          tags="${image}:sha-${GITHUB_SHA}"
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || exit 1
+            [[ "$version" == "$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')" ]] || exit 1
+            git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"
+            tags+=$'\n'"${image}:${version}"
+            if [[ "$version" != *-* ]]; then tags+=$'\n'"${image}:latest"; fi
+          else
+            tags+=$'\n'"${image}:latest"
+          fi
+          { echo 'tags<<TAGS'; echo "$tags"; echo TAGS; } >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.image.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          provenance: true
+          sbom: true

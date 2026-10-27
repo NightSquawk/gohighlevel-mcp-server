@@ -1,0 +1,14 @@
+# Allow only build inputs. Local configs, keys, .env, .git and artifacts stay out.
+**
+!package.json
+!package-lock.json
+!tsconfig.json
+!src/
+!src/**
+!docker/
+!docker/package.json
+!docker/package-lock.json
+!docker/entrypoint.sh
+!docker/validate.mjs
+!LICENSE
+!COMMERCIAL.md

@@ -1,0 +1,8 @@
+{
+  "name": "gohighlevel-mcp-container-gateway",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "supergateway": "4.2.1"
+  }
+}
