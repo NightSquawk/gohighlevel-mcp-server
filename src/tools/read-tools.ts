@@ -19,6 +19,7 @@ type CollectionReadOptions = {
   preferredFields: string[];
   heading: string;
   collectionLabel: string;
+  paginationReport?: (raw: Record<string, unknown>, items: unknown[], params: ToolParams) => Record<string, unknown>;
 };
 
 type CollectionParams = {
@@ -55,7 +56,8 @@ export function registerCollectionReadTool(
         const data = {
           server_total: extractServerTotal(raw),
           traceId: extractTraceId(raw),
-          ...paginate(items, paging.limit, paging.offset)
+          ...paginate(items, paging.limit, paging.offset),
+          ...options.paginationReport?.(raw, items, params)
         };
         const totalText = data.server_total === undefined
           ? `${data.total} ${options.collectionLabel}`

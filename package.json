@@ -1,6 +1,6 @@
 {
   "name": "@nightsquawktech/gohighlevel-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GoHighLevel MCP server for Claude, Cursor, and AI agents: 56 curated CRM tools incl. custom-field CRUD, contact delete, and merge; destructive ops confirm-gated.",
   "keywords": [
     "mcp",

@@ -38,17 +38,36 @@ export function registerContactTools(server: McpServer, client: GoHighLevelClien
   registerCollectionReadTool(server, client, {
     name: "ghl_search_contacts",
     title: "Search GoHighLevel Contacts",
-    description: "Search contacts with POST /contacts/search. This is the preferred read path over deprecated GET /contacts/.",
+    description: "Search contacts with POST /contacts/search. Paginate remotely with page or search_after (not both). has_more is local slicing only; use server_has_more and check server_total for full coverage.",
     inputSchema: SearchContactsSchema.shape,
     method: "post",
     path: () => "/contacts/search",
-    body: (params) => omitUndefined({
+    body: (params) => {
+      if (params.page !== undefined && params.search_after !== undefined) {
+        throw new Error("Use page or search_after, not both.");
+      }
+      return omitUndefined({
       locationId: resolveLocationId(client, params.location_id),
       query: params.query,
       filters: params.filters,
       pageLimit: params.pageLimit,
-      startAfterId: params.start_after_id
-    }),
+      page: params.page,
+      searchAfter: params.search_after
+      });
+    },
+    paginationReport: (raw, items, params) => {
+      const last = items.at(-1) as Record<string, unknown> | undefined;
+      const cursor = Array.isArray(last?.searchAfter) ? last.searchAfter : undefined;
+      const pageLimit = Number(params.pageLimit ?? 20);
+      const page = params.search_after ? undefined : Number(params.page ?? 1);
+      return {
+        server_page: page,
+        server_page_limit: pageLimit,
+        server_has_more: items.length > 0 && (page !== undefined && typeof raw.total === "number"
+          ? page * pageLimit < raw.total : items.length >= pageLimit),
+        next_search_after: cursor
+      };
+    },
     preferredFields: ["id", "contactName", "firstName", "lastName", "email", "phone"],
     heading: "GoHighLevel Contacts",
     collectionLabel: "contacts"
