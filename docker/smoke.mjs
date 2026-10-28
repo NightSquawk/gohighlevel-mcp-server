@@ -37,13 +37,13 @@ try {
       env: { ...environment, SUPERGATEWAY_API_KEY_FILE: file ?? '' },
       encoding: 'utf8', timeout: 5000,
     });
-    assert.notEqual(result.status, 0, 'invalid key configuration must fail closed');
+    assert.equal(result.status, 1, 'invalid key configuration must exit 1, not time out or fail to launch');
   }
   const missingUpstream = { ...environment, SUPERGATEWAY_API_KEY_FILE: secret };
   delete missingUpstream[required[0]];
-  assert.notEqual(spawnSync(process.execPath, ['docker/validate.mjs'], {
+  assert.equal(spawnSync(process.execPath, ['docker/validate.mjs'], {
     env: missingUpstream, encoding: 'utf8', timeout: 5000,
-  }).status, 0, 'missing upstream variable must fail startup');
+  }).status, 1, 'missing upstream variable must exit 1, not time out or fail to launch');
 
   if (local) {
     // Pick an OS-assigned unused port without assuming a global test port.
@@ -62,8 +62,11 @@ try {
     // Confirm the image's own entrypoint also rejects absent/empty key mounts.
     for (const mount of [[], ['--mount', `type=bind,src=${empty},dst=/run/secrets/mcp_api_key,readonly`]]) {
       const result = docker(['run', '--rm', ...envArgs, ...mount, image], false);
-      assert(result.status !== null && result.status !== 0, 'image must exit on bad key configuration');
+      assert.equal(result.status, 1, 'image must exit 1 on bad key configuration, not fail to run');
     }
+    const noUpstream = envArgs.filter((value, index) => value !== required[0] && !(value === '--env' && envArgs[index + 1] === required[0]));
+    assert.equal(docker(['run', '--rm', ...noUpstream, '--mount', `type=bind,src=${secret},dst=/run/secrets/mcp_api_key,readonly`, image], false).status, 1,
+      'image must exit 1 when an upstream variable is missing');
     docker(['run', '--detach', '--name', name, '--publish', '127.0.0.1::8000',
       ...envArgs, '--mount', `type=bind,src=${secret},dst=/run/secrets/mcp_api_key,readonly`, image]);
     assert.equal(docker(['inspect', '--format', '{{.Config.User}}', name]).stdout.trim(), 'node');
