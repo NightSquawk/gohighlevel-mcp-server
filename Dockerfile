@@ -5,7 +5,12 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
-RUN npm run build && npm prune --omit=dev
+RUN npm run build
+
+FROM node:24-bookworm-slim AS dependencies
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
 
 FROM node:24-bookworm-slim AS gateway
 WORKDIR /gateway
@@ -17,7 +22,7 @@ ENV NODE_ENV=production \
     SUPERGATEWAY_API_KEY_FILE=/run/secrets/mcp_api_key
 WORKDIR /app
 COPY --from=build /app/package.json ./
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=gateway /gateway /gateway
 COPY docker/entrypoint.sh docker/validate.mjs ./docker/

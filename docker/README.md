@@ -4,6 +4,8 @@ Classification: PUBLIC
 
 Build locally with `docker build -t gohighlevel-mcp .` from the repository root. Node 24 builds the checked-out source using `npm ci`; a separate locked dependency tree pins unmodified Supergateway 4.2.1. No credentials or client configuration belong in build arguments or source. The runtime runs as UID/GID 1000. Native HTTP servers elsewhere do not need this bridge.
 
+The gateway manifest overrides its pinned upstream SDK dependencies to patched versions (MCP SDK 1.32.0, client/server/core 2.3.0, Node adapter 2.1.0, Hono Node adapter 2.1.3, and Zod 4.6.7) while retaining Supergateway 4.2.1. These overrides address HTTP request-limit, validation-memory and session-isolation advisories. Recheck them when upgrading Supergateway; the container smoke suite must pass before publishing. Production application dependencies are installed in a separate clean build stage rather than pruning the development tree.
+
 ## Runtime configuration
 
 Required upstream environment variables: `GHL_API_TOKEN`, `GHL_LOCATION_ID`. Inject them only at runtime through Coolify secrets/environment. See the root README for API account setup and optional variables.
