@@ -1,0 +1,17 @@
+{
+  "name": "gohighlevel-mcp-container-gateway",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "supergateway": "4.2.1"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "1.32.0",
+    "@modelcontextprotocol/client": "2.3.0",
+    "@modelcontextprotocol/server": "2.3.0",
+    "@modelcontextprotocol/core": "2.3.0",
+    "@modelcontextprotocol/node": "2.1.0",
+    "@hono/node-server": "2.1.3",
+    "zod": "4.6.7"
+  }
+}

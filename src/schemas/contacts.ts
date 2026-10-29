@@ -30,7 +30,8 @@ export const SearchContactsSchema = z
     query: z.string().min(1).optional().describe("Optional search text."),
     filters: z.array(z.record(z.string(), z.unknown())).optional().describe("Optional GoHighLevel contact search filters."),
     pageLimit: z.number().int().min(1).max(100).default(20).describe("GoHighLevel server-side page size."),
-    start_after_id: z.string().min(1).optional().describe("Optional GoHighLevel startAfterId cursor."),
+    page: z.number().int().min(1).optional().describe("GoHighLevel server-side page number. Do not combine with search_after."),
+    search_after: z.array(z.union([z.string(), z.number()])).min(1).optional().describe("Pass the previous response's next_search_after verbatim. Do not combine with page."),
     limit: LimitSchema,
     offset: OffsetSchema,
     response_format: ResponseFormatSchema

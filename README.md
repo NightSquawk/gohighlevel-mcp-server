@@ -227,7 +227,7 @@ ghl_get_location                   Get the location/sub-account details
 ghl_list_users                     List users for a location
 ```
 
-All tools return both text and `structuredContent`; read tools support `response_format: "markdown" | "json"` plus `limit`/`offset` pagination.
+All tools return both text and `structuredContent`; read tools support `response_format: "markdown" | "json"` plus local `limit`/`offset` slicing. For contact search, use `page` or `search_after` for remote pagination, never both. Pass `next_search_after` verbatim when using a cursor. `server_has_more` describes remote pages; `has_more` describes only the returned page's local slice. Check unique IDs against `server_total` before treating an export as complete. The unsupported `start_after_id` field was removed.
 
 ## API coverage
 
