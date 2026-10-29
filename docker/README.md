@@ -26,7 +26,7 @@ Unauthenticated or incorrect-key MCP requests must return 401. `/healthz` is int
 
 ## Build and publication
 
-`.github/workflows/container.yml` builds and runs the no-real-credentials smoke suite for PRs and pushes. PR validation has no registry login, secrets or package-write permission. Publication runs only after validation on default-branch pushes, default-branch manual dispatch, or matching `v<package-version>` tags whose commits are on the default branch. Tags use a full `sha-<commit>` and, on version releases, the exact version. `latest` follows the default branch and stable releases; prerelease tags never move it. No image deploys automatically. Repository Actions/package policy must permit `packages: write`; initial package visibility is controlled in GHCR settings.
+`.github/workflows/container.yml` builds and runs the no-real-credentials smoke suite for PRs and pushes. PR validation has no registry login, secrets or package-write permission. Publication runs only after validation on default-branch pushes, default-branch manual dispatch, or matching `v<package-version>` tags whose commits are on the default branch. Tags use a full `sha-<commit>` and, on version releases, the exact version. `latest` follows default-branch pushes and default-branch manual runs only; version tags never move it. No image deploys automatically. Repository Actions/package policy must permit `packages: write`; initial package visibility is controlled in GHCR settings.
 
 For host-only transport verification after `npm ci`, `npm run build` and `npm ci --prefix docker`, run `node docker/smoke.mjs --local`; this cannot verify the image entrypoint, filesystem permissions or container shutdown.
 

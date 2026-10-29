@@ -18,6 +18,11 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
+      - name: Contact pagination regression tests
+        run: |
+          npm ci
+          npm run build
+          node --test test/contacts-pagination.test.mjs
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
@@ -61,7 +66,6 @@ jobs:
             [[ "$version" == "$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')" ]] || exit 1
             git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"
             tags+=$'\n'"${image}:${version}"
-            if [[ "$version" != *-* ]]; then tags+=$'\n'"${image}:latest"; fi
           else
             tags+=$'\n'"${image}:latest"
           fi
