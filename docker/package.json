@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "dependencies": {
-    "supergateway": "4.2.1"
+    "supergateway": "4.2.2"
   },
   "overrides": {
     "@modelcontextprotocol/sdk": "1.32.0",
